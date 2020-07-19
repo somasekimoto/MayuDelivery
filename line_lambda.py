@@ -10,15 +10,63 @@ from linebot.models import TextSendMessage
 
 import requests
 import os
+from bs4 import BeautifulSoup
+import urllib.request
+import time
+import boto3
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
 # 画像をスクレイピングするメソッド
-def get_images(event, context):
+def scraping(url, max_page_num):
+    # ページネーション実装
+    page_list = get_page_list(url, max_page_num)
+    # 画像URLリスト取得
+    all_img_src_list = []
+    for page in page_list:
+        img_src_list = get_img_src_list(page)
+        all_img_src_list.extend(img_src_list)
+    return all_img_src_list
 
-    return{"status_code": 200, "body": "get_images successfully executed"}
+
+def get_img_src_list(url):
+    # 検索結果ページにアクセス
+    response = requests.get(url)
+    # レスポンスをパース
+    soup = BeautifulSoup(response.text, 'html.parser')
+    img_src_list = [img.get('src') for img in soup.select('td img')]
+    return img_src_list
+
+
+def get_page_list(url, max_page_num):
+    img_num_per_page = 20
+    page_list = [f'{url}{i*img_num_per_page+1}' for i in range(max_page_num)]
+    return page_list
+
+
+def download_img(src, dist_path):
+    time.sleep(1)
+    try:
+        bucket = 'image-catcher-dev-asset'
+        s3 = boto3.resource('s3')
+        with urllib.request.urlopen(src) as data:
+            img = data.read()
+            with open(dist_path, 'wb') as f:
+                f.write(img)
+                s3.Bucket(bucket).put_object(Key=dist_path, Body=img)
+    except:
+        return {"errorMessage": "download error"}
+
+
+def main(event, context):
+    url = "https://www.google.com/search?q=%E6%9D%BE%E5%B2%A1%E8%8C%89%E5%84%AA&tbm=isch&hl=ja&hl=ja&tbs=qdr%3Aw&ved=0CAMQpwVqFwoTCLDl0b-b2OoCFQAAAAAdAAAAABAC&biw=1440&bih=740"
+    MAX_PAGE_NUM = 1
+    all_img_src_list = scraping(url, MAX_PAGE_NUM)
+    # 画像ダウンロード
+    for i, src in enumerate(all_img_src_list):
+        download_img(src, f'/tmp/mayu_{i + 1}.jpg')
 
 
 # メッセージを受けて、返信するメソッド
@@ -59,3 +107,7 @@ def linebot(oevent, context):
                 print(e.error.details)
 
     return {"stautsCode": 200, "body": "OK"}
+
+
+if __name__ == '__main__':
+    main(None, None)
