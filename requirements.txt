@@ -1,4 +1,4 @@
 requests
 line-bot-sdk
 print_function
-bs4
+tweepy
