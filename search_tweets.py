@@ -5,7 +5,7 @@ consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
 consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
 access_token = os.getenv('TWITTER_ACCESS_TOKEN')
 access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
-# bearer_token = f'AAAAAAAAAAAAAAAAAAAAAODBHQEAAAAAD0Q%2FaMXvc4vNDZDKAeKSmh5LDFA%3DSp2c1b6e1bT9LRBh6WduXqyubWt6S7wZSEBslMaAPGIGPop5KM'
+bearer_token = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 
 
 # twitter で#松岡茉優の画像検索してURL取得
