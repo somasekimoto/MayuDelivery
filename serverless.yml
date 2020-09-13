@@ -25,5 +25,5 @@ functions:
           path: linebot/send_photos
           method: post
       - schedule:
-          rate: cron(0 7 * * ? *)
+          rate: cron(30 3 * * ? *)
           enabled: ${self:custom.scheduleEnabled.${opt:stage, self:provider.stage}}
