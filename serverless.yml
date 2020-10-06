@@ -5,10 +5,10 @@ provider:
   runtime: python3.7
   region: ap-northeast-1
   stage: stg
+  deploymentBucket: sls-deps
   environment: ${file(./env/${opt:stage, self:provider.stage}.yml)}
 
 plugins:
-  - serverless-offline
   - serverless-python-requirements
 
 custom:
