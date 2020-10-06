@@ -1,5 +1,7 @@
 import os
 import tweepy
+from datetime import datetime, date, timedelta
+from dateutil.relativedelta import relativedelta
 
 consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
 consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
@@ -14,8 +16,13 @@ def search_photos():
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
 
+    yesterday = datetime.strftime(
+        datetime.today() - relativedelta(days=1), f"%Y-%m-%d")
+
+    q = f'#松岡茉優 OR 松岡茉優 filter:media exclude:retweets min_faves:10 since:{yesterday} min_retweets:2'
+
     cric_tweet = tweepy.Cursor(
-        api.search, q='#松岡茉優 filter:images min_faves:7', lang='ja', result_type='mixed').items(15)
+        api.search, q=q).items(20)
     print(cric_tweet)
 
     photo_urls = []

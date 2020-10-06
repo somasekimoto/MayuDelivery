@@ -9,7 +9,7 @@ from linebot.models import (
 
 import requests
 import os
-import time
+
 
 import search_tweets
 
