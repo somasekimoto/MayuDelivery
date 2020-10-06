@@ -20,6 +20,7 @@ custom:
 functions:
   send_photos:
     handler: photo_deliver.send_photos
+    timeout: 300
     events:
       - http:
           path: linebot/send_photos
