@@ -19,7 +19,7 @@ custom:
 
 functions:
   send_media:
-    handler: photo_deliver.send_media
+    handler: media_deliver.send_media
     timeout: 300
     events:
       - http:
