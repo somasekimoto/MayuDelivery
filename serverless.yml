@@ -1,4 +1,4 @@
-service: mayu-photo-delivery
+service: mayu-delivery
 
 provider:
   name: aws
@@ -18,12 +18,12 @@ custom:
     local: false
 
 functions:
-  send_photos:
-    handler: photo_deliver.send_photos
+  send_media:
+    handler: photo_deliver.send_media
     timeout: 300
     events:
       - http:
-          path: linebot/send_photos
+          path: linebot/send_media
           method: post
       - schedule:
           rate: cron(30 3 * * ? *)
