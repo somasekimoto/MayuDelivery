@@ -3,6 +3,13 @@ import tweepy
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 import re
+import logging
+from linebot import LineBotApi
+from linebot.exceptions import LineBotApiError
+from linebot.models import (
+    BubbleContainer, BoxComponent, TextComponent,
+    FlexSendMessage, ImageComponent, URIAction
+)
 
 consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
 consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
