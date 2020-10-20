@@ -19,7 +19,7 @@ def search_tweets():
     yesterday = datetime.strftime(
         datetime.today() - relativedelta(days=1), f"%Y-%m-%d")
 
-    q = f'#松岡茉優 OR 松岡茉優 -松岡茉優似 filter:media exclude:retweets min_faves:5 since:{yesterday} min_retweets:1'
+    q = f"#松岡茉優 OR 松岡茉優 -'松岡茉優似' filter:media exclude:retweets min_faves:10 since:{yesterday} min_retweets:0"
 
     cric_tweet = tweepy.Cursor(
         api.search, q=q, tweet_mode='extended', include_entities=True).items(20)
