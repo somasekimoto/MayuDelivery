@@ -2,6 +2,9 @@ import os
 import tweepy
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
+from linebot.models import (
+    TextSendMessage, ImageSendMessage, VideoSendMessage
+)
 
 consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
 consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
@@ -47,7 +50,16 @@ def search_tweets():
         except:
             print('noUrl')
             print('--------------------------------------------')
-    return contents
+
+    messages = []
+    for media in contents:
+        item = VideoSendMessage(
+            original_content_url=media['origin'], preview_image_url=media['preview']) if media['type'] == 'video' else ImageSendMessage(
+            original_content_url=media['origin'], preview_image_url=media['preview'])
+
+        messages.append(item)
+
+    return [messages[0:5], messages[5:10]]
 
 
 if __name__ == "__main__":

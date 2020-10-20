@@ -1,15 +1,8 @@
 # -*- coding:utf-8 -*-
 import logging
-from linebot import LineBotApi
-
-from linebot.exceptions import LineBotApiError
-from linebot.models import (
-    TextSendMessage, ImageSendMessage, VideoSendMessage
-)
-
-import requests
 import os
-
+from linebot import LineBotApi
+from linebot.exceptions import LineBotApiError
 
 import search_tweets
 
@@ -27,38 +20,23 @@ def send_media(event, context):
 
     try:
         # twitter 検索で画像と動画の URL オブジェクトの配列を取得
-        all_media_list = search_tweets.search_tweets()
-        print('all_media_list')
-        print(all_media_list)
-
-        messages = []
-
-        for media in all_media_list:
-            item = VideoSendMessage(
-                original_content_url=media['origin'], preview_image_url=media['preview']) if media['type'] == 'video' else ImageSendMessage(
-                original_content_url=media['origin'], preview_image_url=media['preview'])
-
-            messages.append(item)
-
+        function_name = context.function_name.split('-')[-1]
+        messages = getattr(eval(function_name), function_name)()
         print('messages')
         print(messages)
+
         if os.getenv('STAGE') == 'prod':
-            line_bot_api.broadcast(
-                messages[0:3]
-            )
-            line_bot_api.broadcast(
-                messages[4:8]
-            )
+            for message in messages:
+                line_bot_api.broadcast(
+                    message
+                )
         else:
             user_id = os.getenv('USER_ID')
-            line_bot_api.push_message(
-                user_id,
-                messages[0:3]
-            )
-            line_bot_api.push_message(
-                user_id,
-                messages[4:8]
-            )
+            for message in messages:
+                line_bot_api.push_message(
+                    user_id,
+                    message
+                )
 
     except LineBotApiError as e:
         print(e.status_code)

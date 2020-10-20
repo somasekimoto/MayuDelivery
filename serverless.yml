@@ -18,7 +18,7 @@ custom:
     local: false
 
 functions:
-  send_media:
+  search_tweets:
     handler: media_deliver.send_media
     timeout: 300
     events:
