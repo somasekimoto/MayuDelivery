@@ -5,6 +5,7 @@ from linebot import LineBotApi
 from linebot.exceptions import LineBotApiError
 
 import search_tweets
+import check_official
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

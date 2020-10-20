@@ -29,4 +29,12 @@ functions:
           rate: cron(30 3 * * ? *)
           enabled: ${self:custom.scheduleEnabled.${opt:stage, self:provider.stage}}
   check_official:
-    handler: check_official.check_official
+    handler: media_deliver.send_media
+    timeout: 300
+    events:
+      - http:
+          path: linebot/send_media
+          method: post
+      - schedule:
+          rate: rate(1 hour)
+          enabled: ${self:custom.scheduleEnabled.${opt:stage, self:provider.stage}}

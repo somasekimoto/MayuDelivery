@@ -3,9 +3,6 @@ import tweepy
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 import re
-import logging
-from linebot import LineBotApi
-from linebot.exceptions import LineBotApiError
 from linebot.models import (
     BubbleContainer, BoxComponent, TextComponent,
     FlexSendMessage, ImageComponent, URIAction, IconComponent, CarouselContainer, ButtonComponent
@@ -17,16 +14,8 @@ access_token = os.getenv('TWITTER_ACCESS_TOKEN')
 access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 bearer_token = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
-
-def check_official(event, context):
-    logger.info("Authentication OK.")
-    # LineBotAPIオブジェクトを作成する
-    token = os.getenv('LINE_ACCESS_TOKEN')
-    line_bot_api = LineBotApi(token)
-
+def check_official():
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
@@ -76,7 +65,7 @@ def check_official(event, context):
             print('---------------')
 
     if not official_tweets:
-        return False
+        return []
     print(official_tweets)
 
     official_contents = []
@@ -160,16 +149,7 @@ def check_official(event, context):
         contents=official_contents,
     )
     message = FlexSendMessage(alt_text="松岡茉優 公式ツイート", contents=carousel)
-    if os.getenv('STAGE') == 'prod':
-        line_bot_api.broadcast(
-            message
-        )
-    else:
-        user_id = os.getenv('USER_ID')
-        line_bot_api.push_message(
-            user_id,
-            message
-        )
+    return [message]
 
 
 if __name__ == "__main__":
