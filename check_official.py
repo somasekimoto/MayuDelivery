@@ -21,7 +21,7 @@ def check_official():
     api = tweepy.API(auth)
 
     tweets = api.user_timeline(
-        screen_name='hiratahirata14', count=10, exclude_replies=False,
+        screen_name='hiratahirata14', count=10, exclude_replies=True,
         tweet_mode="extended", include_entities=True
     )
     official_tweets = []
