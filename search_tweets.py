@@ -24,11 +24,16 @@ def search_tweets():
 
     q = f"#松岡茉優 OR 松岡茉優 -'松岡茉優似' filter:media exclude:retweets min_faves:10 since:{yesterday} min_retweets:0"
 
-    cric_tweet = tweepy.Cursor(
-        api.search, q=q, tweet_mode='extended', include_entities=True).items(20)
+    tweets = tweepy.Cursor(
+        api.search,
+        q=q,
+        tweet_mode='extended',
+        result_type="mixed",
+        include_entities=True,
+    ).items(20)
 
     contents = []
-    for tweet in cric_tweet:
+    for tweet in tweets:
         print(tweet.full_text)
         try:
             media = tweet.extended_entities['media']
