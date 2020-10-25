@@ -26,7 +26,7 @@ def check_official():
     )
     official_tweets = []
     for t in tweets:
-        if t.created_at >= datetime.now() - timedelta(hours=1, minutes=1):
+        if t.created_at >= datetime.utcnow() - timedelta(hours=1, minutes=1):
             print(t.full_text)
             print(t.created_at)
             profile_image = t.user.profile_image_url_https
