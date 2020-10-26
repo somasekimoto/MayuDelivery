@@ -27,7 +27,13 @@ def search_news(event, context):
     # q = f"#松岡茉優 OR 松岡茉優 filter:news exclude:retweets"
 
     news_tweets = tweepy.Cursor(
-        api.search, q=q, tweet_mode='extended', include_entities=True).items(5)
+        api.search,
+        q=q,
+        tweet_mode='extended',
+        include_entities=True,
+        result_type='mixed',
+        count=20,
+    ).items(20)
 
     news_contents = []
     for tweet in news_tweets:
