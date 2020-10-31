@@ -74,6 +74,7 @@ def check_official():
         header = BoxComponent(
             type="box",
             layout="vertical",
+            background_color="#1EA2F1",
             contents=[
                 TextComponent(
                     type="text",
