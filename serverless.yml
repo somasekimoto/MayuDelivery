@@ -16,6 +16,8 @@ custom:
     prod: true
     stg: false
     local: false
+  pythonRequirements:
+    dockerizePip: true
 
 functions:
   search_tweets:
