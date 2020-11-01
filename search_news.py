@@ -3,9 +3,12 @@ import tweepy
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 import json
+import requests
+from bs4 import BeautifulSoup
+import lxml
 
 from linebot.models import (
-    BubbleContainer, BoxComponent, TextComponent,
+    BubbleContainer, BoxComponent, TextComponent, SeparatorComponent, SpacerComponent,
     FlexSendMessage, ImageComponent, URIAction, IconComponent, CarouselContainer, ButtonComponent
 )
 
@@ -16,116 +19,130 @@ access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 bearer_token = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 
 
-def layout_message(news_tweets):
+def create_contents(news_tweets):
     contents = []
     for tweet in news_tweets:
-        print(tweet.user.name)
-        print(tweet.full_text)
-        print(tweet.favorite_count)
-        print(tweet.entities['urls'][0]['expanded_url'])
+        response = requests.get(tweet.entities['urls'][0]['expanded_url'])
+        soup = BeautifulSoup(response.text, 'lxml')
+        print(soup.title.string)
+        news_title = soup.title.string
+        news_url = tweet.entities['urls'][0]['expanded_url']
         contents.append(
             {
-                'user_name': tweet.user.name,
-                'text': tweet.full_text,
+                'title': news_title,
                 'favorite_count': tweet.favorite_count,
-                'news_url': tweet.entities['urls'][0]['expanded_url'],
+                'news_url': news_url,
             }
         )
         print("------------------------------------------------------------")
+    if not contents:
+        return []
+    print(contents)
 
-    unique_contents = list(map(json.loads, set(map(json.dumps, contents))))
     sorted_contents = sorted(
-        unique_contents,
+        contents,
         key=lambda x: x['favorite_count'],
-        reverse=True
+        reverse=True,
     )
-    print(sorted_contents)
-    # return False
-    # header_text = o['header_text']
-    # header = BoxComponent(
-    #     type="box",
-    #     layout="vertical",
-    #     contents=[
-    #         TextComponent(
-    #             type="text",
-    #             text=tweet,
-    #             weight="bold",
-    #         )
-    #     ]
-    # )
-    # hero = ImageComponent(
-    #     url=o['profile_image'],
-    #     size='full',
-    #     aspect_ratio='2:1',
-    #     aspect_mode='cover',
-    #     action=URIAction(uri=o['tweet_url'])
-    # )
-    # body_image_box = BoxComponent(
-    #     type="box",
-    #     layout='horizontal',
-    #     contents=o['images'],
-    # )
-    # body_text_box = BoxComponent(
-    #     type="box",
-    #     layout='baseline',
-    #     contents=[
-    #         IconComponent(
-    #             type="icon",
-    #             url=o['tweeter_icon'],
-    #             size="sm",
-    #             aspect_ratio="1:1",
-    #         ),
-    #         TextComponent(
-    #             type="text",
-    #             text=o['text'],
-    #             weight='bold',
-    #             size='sm',
-    #             wrap=True,
-    #         ),
-    #     ],
-    # )
-    # body = BoxComponent(
-    #     type="box",
-    #     layout='vertical',
-    #     contents=[
-    #         body_image_box,
-    #         body_text_box,
-    #     ],
-    # )
-    # footer_button = ButtonComponent(
-    #     type="button",
-    #     style="primary",
-    #     action=URIAction(uri=o['tweet_url'], label='このツイートを見る'),
-    #     color="#1EA2F1",
-    # )
-    # footer = BoxComponent(
-    #     type="box",
-    #     layout="horizontal",
-    #     contents=[
-    #         footer_button,
-    #     ],
-    # )
-    # bubble = BubbleContainer(
-    #     type="bubble",
-    #     direction='ltr',
-    #     header=header,
-    #     hero=hero,
-    #     body=body,
-    #     footer=footer,
-    # )
-    # official_contents.append(bubble)
+
+    titles = []
+    unique_contents = []
+    for c in sorted_contents:
+        if c['title'] not in titles:
+            titles.append(c['title'])
+            unique_contents.append(c)
+    print(unique_contents)
+    return unique_contents[0:5]
 
 
-def search_news(event, context):
+def design_message(contents):
+    body_comps = []
+    for t in contents:
+        header_text = TextComponent(
+            type="text",
+            text=t['title'],
+            weight='bold',
+            size='xs',
+            margin='md',
+            gravity='center',
+            wrap=True,
+            action=URIAction(uri=t['news_url']),
+        )
+
+        box = BoxComponent(
+            type='box',
+            layout='vertical',
+            contents=[
+                header_text,
+                SeparatorComponent(
+                    type='separator',
+                ),
+                SpacerComponent(
+                    type='spacer',
+                    size='xl',
+                )
+
+            ]
+        )
+        body_comps.append(box)
+
+    header = BoxComponent(
+        type="box",
+        layout="vertical",
+        background_color="#F06161FF",
+        contents=[
+            TextComponent(
+                type="text",
+                text="〜 まゆニュース 〜",
+                weight="bold",
+                color="#FFFFFFFF",
+            )
+        ]
+    )
+    body_text_box = BoxComponent(
+        type="box",
+        layout='vertical',
+        contents=body_comps,
+    )
+    body = BoxComponent(
+        type="box",
+        layout='vertical',
+        contents=[
+            body_text_box,
+        ],
+    )
+    footer = BoxComponent(
+        type="box",
+        layout="vertical",
+        background_color="#F06161FF",
+        contents=[
+            SpacerComponent(
+                type="spacer",
+                size='xxl',
+            )
+        ]
+    )
+    bubble = BubbleContainer(
+        type="bubble",
+        direction='ltr',
+        header=header,
+        body=body,
+        footer=footer,
+    )
+    message = FlexSendMessage(alt_text="まゆニュース", contents=bubble)
+    return [message]
+
+
+def search_news():
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
 
-    yesterday = datetime.strftime(
-        datetime.today() - relativedelta(days=1), f"%Y-%m-%d")
+    now = datetime.utcnow()
+    twelve_hours = relativedelta(hours=12, minutes=1)
+    half_day = datetime.strftime(now - twelve_hours, f"%Y-%m-%d_%H:%M:%S")
 
-    # q = f"#松岡茉優 OR 松岡茉優 filter:news exclude:retweets filter:verified since:{yesterday}"
-    q = f"#松岡茉優 OR 松岡茉優 filter:news exclude:retweets filter:verified"
+    q = f"#松岡茉優 OR 松岡茉優 filter:news exclude:retweets since:{half_day}"
 
     news_tweets = tweepy.Cursor(
         api.search,
@@ -133,10 +150,12 @@ def search_news(event, context):
         tweet_mode='extended',
         include_entities=True,
         result_type='mixed',
-        count=20,
-    ).items(20)
+    ).items(30)
 
-    messages = layout_message(news_tweets)
+    contents = create_contents(news_tweets)
+    if not contents:
+        return []
+    return design_message(contents)
 
 
 if __name__ == "__main__":

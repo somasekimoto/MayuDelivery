@@ -2,3 +2,5 @@ requests
 line-bot-sdk
 print_function
 tweepy
+bs4
+lxml
