@@ -33,6 +33,7 @@ def check_official():
             text = t.full_text
             is_retweeted = re.match('^RT', text)
             header_text = '公式のツイート' if not is_retweeted else '公式のリツイート'
+            main_color = '#08B901' if is_retweeted else '#1EA2F1'
             tweeter = t.retweeted_status.user if is_retweeted else t.user
             tweeter_icon = tweeter.profile_image_url_https
             try:
@@ -53,6 +54,7 @@ def check_official():
             official_tweets.append(
                 {
                     'header_text': header_text,
+                    'main_color': main_color,
                     'text': text,
                     'profile_image': profile_image.replace('_normal', ''),
                     'tweeter_icon': tweeter_icon.replace('_normal', ''),
@@ -74,12 +76,13 @@ def check_official():
         header = BoxComponent(
             type="box",
             layout="vertical",
-            background_color="#1EA2F1",
+            background_color=o['main_color'],
             contents=[
                 TextComponent(
                     type="text",
                     text=header_text,
                     weight="bold",
+                    color="#FFFFFF",
                 )
             ]
         )
@@ -126,7 +129,7 @@ def check_official():
             type="button",
             style="primary",
             action=URIAction(uri=o['tweet_url'], label='このツイートを見る'),
-            color="#1EA2F1",
+            color=o['main_color'],
         )
         footer = BoxComponent(
             type="box",
