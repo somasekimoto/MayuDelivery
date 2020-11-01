@@ -19,8 +19,9 @@ def search_tweets():
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
 
-    yesterday = datetime.strftime(
-        datetime.today() - relativedelta(days=1), f"%Y-%m-%d")
+    today = datetime.today()
+    one_day_ago = relativedelta(days=1)
+    yesterday = datetime.strftime(today - one_day_ago, f"%Y-%m-%d")
 
     q = f"#松岡茉優 OR 松岡茉優 -'松岡茉優似' filter:media exclude:retweets min_faves:10 since:{yesterday} min_retweets:0"
 
