@@ -15,16 +15,8 @@ access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 bearer_token = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 
 
-def check_official():
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-    api = tweepy.API(auth)
-
-    tweets = api.user_timeline(
-        screen_name='hiratahirata14', count=10, exclude_replies=True,
-        tweet_mode="extended", include_entities=True
-    )
-    official_tweets = []
+def create_contents(tweets):
+    contents = []
     for t in tweets:
         if t.created_at >= datetime.utcnow() - timedelta(hours=1, minutes=1):
             print(t.full_text)
@@ -51,7 +43,7 @@ def check_official():
                 ]
             except:
                 images = []
-            official_tweets.append(
+            contents.append(
                 {
                     'header_text': header_text,
                     'main_color': main_color,
@@ -65,13 +57,12 @@ def check_official():
             print('---------------')
         else:
             print('---------------')
+    return contents
 
-    if not official_tweets:
-        return []
-    print(official_tweets)
 
-    official_contents = []
-    for o in official_tweets:
+def create_bubble_messages(contents):
+    bubble_messages = []
+    for o in contents:
         header_text = o['header_text']
         header = BoxComponent(
             type="box",
@@ -146,11 +137,31 @@ def check_official():
             body=body,
             footer=footer,
         )
-        official_contents.append(bubble)
+        bubble_messages.append(bubble)
+    return bubble_messages
+
+
+def check_official():
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    api = tweepy.API(auth)
+
+    tweets = api.user_timeline(
+        screen_name='hiratahirata14', count=10, exclude_replies=True,
+        tweet_mode="extended", include_entities=True
+    )
+
+    contents = create_contents(tweets)
+
+    if not contents:
+        return []
+    print(contents)
+
+    bubble_messages = create_bubble_messages(contents)
 
     carousel = CarouselContainer(
         type="carousel",
-        contents=official_contents,
+        contents=bubble_messages,
     )
     message = FlexSendMessage(alt_text="松岡茉優 公式ツイート", contents=carousel)
     return [message]
