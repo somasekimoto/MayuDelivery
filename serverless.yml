@@ -50,3 +50,5 @@ functions:
       - schedule:
           rate: cron(0 9,21 * * ? *)
           enabled: ${self:custom.scheduleEnabled.${opt:stage, self:provider.stage}}
+  rich_menu:
+    handler: rich_menu.createRichmenu
