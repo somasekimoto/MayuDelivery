@@ -52,3 +52,10 @@ functions:
           enabled: ${self:custom.scheduleEnabled.${opt:stage, self:provider.stage}}
   rich_menu:
     handler: rich_menu.createRichmenu
+
+resources:
+  Resources:
+    S3MayuDailyPhotos:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.stage}-mayu-media-daily

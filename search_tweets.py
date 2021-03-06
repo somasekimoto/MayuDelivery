@@ -5,6 +5,9 @@ from dateutil.relativedelta import relativedelta
 from linebot.models import (
     TextSendMessage, ImageSendMessage, VideoSendMessage
 )
+import s3
+import time
+import urllib.error
 
 consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
 consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
@@ -58,14 +61,27 @@ def search_tweets():
             print('--------------------------------------------')
 
     messages = []
-    for media in contents:
+    for index, media in enumerate(contents):
+        print(media['origin'])
         item = VideoSendMessage(
             original_content_url=media['origin'], preview_image_url=media['preview']) if media['type'] == 'video' else ImageSendMessage(
             original_content_url=media['origin'], preview_image_url=media['preview'])
-
         messages.append(item)
 
+        time.sleep(1)
+        try:
+            s3.upload(media['origin'], index)
+            continue
+        except urllib.error.URLError as e:
+            print('TIMEOUT ERROR')
+            print(e)
+            continue
+        else:
+            print('maybe unknown error')
+            continue
+
     return [messages[0:5], messages[5:10]]
+    # return [messages[0:5], messages[5:10], messages[10:15]]
 
 
 if __name__ == "__main__":
