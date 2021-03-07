@@ -4,7 +4,7 @@ provider:
   name: aws
   runtime: python3.7
   region: ap-northeast-1
-  stage: stg
+  stage: ${opt:stage, 'stg'}
   deploymentBucket: sls-deps
   environment: ${file(./env/${opt:stage, self:provider.stage}.yml)}
 
@@ -29,7 +29,7 @@ functions:
           method: post
       - schedule:
           rate: cron(30 3 * * ? *)
-          enabled: ${self:custom.scheduleEnabled.${opt:stage, self:provider.stage}}
+          enabled: ${self:custom.scheduleEnabled.${self:provider.stage}}
   check_official:
     handler: media_deliver.send_media
     timeout: 300
@@ -39,7 +39,7 @@ functions:
           method: post
       - schedule:
           rate: rate(1 hour)
-          enabled: ${self:custom.scheduleEnabled.${opt:stage, self:provider.stage}}
+          enabled: ${self:custom.scheduleEnabled.${self:provider.stage}}
   search_news:
     handler: media_deliver.send_media
     timeout: 300
@@ -49,7 +49,7 @@ functions:
           method: post
       - schedule:
           rate: cron(0 9,21 * * ? *)
-          enabled: ${self:custom.scheduleEnabled.${opt:stage, self:provider.stage}}
+          enabled: ${self:custom.scheduleEnabled.${self:provider.stage}}
   rich_menu:
     handler: rich_menu.createRichmenu
 
