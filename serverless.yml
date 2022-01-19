@@ -13,8 +13,13 @@ provider:
         - "s3:PutObject"
       # Resource: "arn:aws:s3:::stg-mayu-media-daily"
       Resource: "*"
+  apiGateway:
+    binaryMediaTypes:
+      - "*/*"
+
 plugins:
   - serverless-python-requirements
+  - serverless-domain-manager
 
 custom:
   scheduleEnabled:
@@ -23,6 +28,17 @@ custom:
     local: false
   pythonRequirements:
     dockerizePip: true
+  domainName-prod: "mayurer.com"
+  domainName-stg: "stg.mayurer.com"
+  customDomain:
+    domainName: ${self:custom.domainName-${self:provider.stage}}
+    certificateName: "mayurer.com"
+    basePath: ""
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+    apiType: rest
+    endpointType: "edge"
+    securityPolicy: tls_1_2
 
 functions:
   search_tweets:
