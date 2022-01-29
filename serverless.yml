@@ -2,7 +2,7 @@ service: mayu-delivery
 
 provider:
   name: aws
-  runtime: python3.7
+  runtime: python3.8
   region: ap-northeast-1
   stage: ${opt:stage, 'stg'}
   deploymentBucket: sls-deps
@@ -11,11 +11,9 @@ provider:
     - Effect: "Allow"
       Action:
         - "s3:PutObject"
-      # Resource: "arn:aws:s3:::stg-mayu-media-daily"
+        - "s3:ListBucket"
+        - "s3:GetObject"
       Resource: "*"
-  apiGateway:
-    binaryMediaTypes:
-      - "*/*"
 
 plugins:
   - serverless-python-requirements
@@ -36,9 +34,9 @@ custom:
     basePath: ""
     stage: ${self:provider.stage}
     createRoute53Record: true
-    apiType: rest
     endpointType: "edge"
     securityPolicy: tls_1_2
+    apiType: rest
 
 functions:
   search_tweets:
@@ -71,6 +69,12 @@ functions:
       - schedule:
           rate: cron(0 9,21 * * ? *)
           enabled: ${self:custom.scheduleEnabled.${self:provider.stage}}
+  all_files:
+    handler: s3.all_files
+    events:
+      - http:
+          path: all_files
+          method: GET
   rich_menu:
     handler: rich_menu.createRichmenu
 
