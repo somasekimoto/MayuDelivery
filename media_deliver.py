@@ -45,7 +45,7 @@ def send_media(event, context):
         print(e.error.message)
         print(e.error.details)
 
-    return {"stautsCode": 200, "body": "OK"}
+    return {"statusCode": 200, "body": "OK"}
 
 
 if __name__ == '__main__':
