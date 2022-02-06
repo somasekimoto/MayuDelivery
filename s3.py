@@ -6,12 +6,13 @@ import os.path
 import shutil
 import json
 
+s3_client = boto3.client('s3')
+s3_resource = boto3.resource('s3')
+bucket_name = os.getenv('S3_BUCKET', 'stg-mayu-media-daily')
+
 
 def upload(file, index):
     TEMP_DIR = "tmp"
-
-    s3 = boto3.client('s3')
-    bucket_name = os.getenv('S3_BUCKET')
 
     root, ext = os.path.splitext(file)
     qs = urllib.parse.urlparse(file).query
@@ -26,18 +27,28 @@ def upload(file, index):
 
     today_str = datetime.today().strftime(f"%Y-%m-%d")
     s3_object_path = today_str + '/dailyMayu' + str(index) + ext
-    s3.upload_file(local_file, bucket_name, s3_object_path)
+    s3_client.upload_file(local_file, bucket_name, s3_object_path)
 
 
 def all_files(event, context):
-    s3 = boto3.resource('s3')
-    bucket_name = os.getenv('S3_BUCKET', 'stg-mayu-media-daily')
-    bucket = s3.Bucket(bucket_name)
+    bucket = s3_resource.Bucket(bucket_name)
     keys = [obj.key for obj in bucket.objects.all()]
+    urls = [gen_presigned_url(key) for key in keys]
     response = {
-        "body": json.dumps({"keys": keys}),
+        "body": json.dumps({"urls": urls}),
     }
     return response
+
+
+def gen_presigned_url(key_name):
+    presigned_url = s3_client.generate_presigned_url(
+        ClientMethod='get_object',
+        Params={
+            'Bucket': bucket_name, 'Key': key_name
+        },
+        ExpiresIn=3600
+    )
+    return presigned_url
 
 
 if __name__ == '__main__':
