@@ -69,11 +69,11 @@ functions:
       - schedule:
           rate: cron(0 9,21 * * ? *)
           enabled: ${self:custom.scheduleEnabled.${self:provider.stage}}
-  all_files:
-    handler: s3.all_files
+  fetch_files:
+    handler: s3.fetch_files
     events:
       - http:
-          path: all_files
+          path: fetch_files
           method: GET
   rich_menu:
     handler: rich_menu.createRichmenu

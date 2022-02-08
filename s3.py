@@ -1,5 +1,5 @@
 import boto3
-from datetime import datetime
+from datetime import datetime, date, timedelta
 import time
 import urllib
 import os.path
@@ -30,11 +30,38 @@ def upload(file, index):
     s3_client.upload_file(local_file, bucket_name, s3_object_path)
 
 
-def all_files(event, context):
+def fetch_files(event, context):
+    try:
+        print("event")
+        print(event)
+        token = event['queryStringParameters']['token']
+        if(is_token_valid(token) is False):
+            return {"statusCode": 401, "body": json.dumps({"message": "Unauthorized"})}
+    except KeyError as ke:
+        print(ke)
+        return {"statusCode": 401, "body": json.dumps({"message": "Unauthorized"})}
+    except Exception as e:
+        print(e)
+        return {"statusCode": 500, "body": json.dumps({"message": "something's wrong!"})}
+
+    from_string = event['queryStringParameters']['from']
+    to_string = event['queryStringParameters']['to']
+    from_date = datetime.strptime(from_string, '%Y-%m-%d').date()
+    to_date = datetime.strptime(to_string, '%Y-%m-%d').date()
+    days = (to_date - from_date).days
+
+    keys = []
+    dt = from_date
     bucket = s3_resource.Bucket(bucket_name)
-    keys = [obj.key for obj in bucket.objects.all()]
-    urls = [gen_presigned_url(key) for key in keys]
+    for num in range(days + 1):
+        dt += timedelta(days=num)
+        prefix = dt.strftime('%Y-%m-%d')
+        for obj in bucket.objects.filter(Prefix=prefix):
+            keys.append(obj.key)
+        urls = [gen_presigned_url(key) for key in keys]
+
     response = {
+        "statusCode": 200,
         "body": json.dumps({"urls": urls}),
     }
     return response
@@ -51,6 +78,17 @@ def gen_presigned_url(key_name):
     return presigned_url
 
 
+def is_token_valid(token: str) -> bool:
+
+    return (token == os.getenv("MAYU_DELIVERY_TOKEN"))
+
+
 if __name__ == '__main__':
     # upload(None, None)
-    print(all_files(None, None))
+    event = {'queryStringParameters': {
+        'from': '2021-03-06',
+        'to': '2021-03-08',
+        'token': os.getenv("MAYU_DELIVERY_TOKEN")
+    }
+    }
+    print(fetch_files(event, None))
