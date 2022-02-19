@@ -21,3 +21,4 @@ var/
 node_modules
 __pycache__
 package-lock.json
+.python-version
