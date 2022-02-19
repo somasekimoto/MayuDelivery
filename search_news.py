@@ -84,11 +84,6 @@ def design_message(contents):
                 SeparatorComponent(
                     type='separator',
                 ),
-                SpacerComponent(
-                    type='spacer',
-                    size='xl',
-                )
-
             ]
         )
         body_comps.append(box)
@@ -122,12 +117,6 @@ def design_message(contents):
         type="box",
         layout="vertical",
         background_color="#F06161FF",
-        contents=[
-            SpacerComponent(
-                type="spacer",
-                size='xxl',
-            )
-        ]
     )
     bubble = BubbleContainer(
         type="bubble",
