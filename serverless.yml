@@ -27,6 +27,7 @@ custom:
     local: false
   pythonRequirements:
     dockerizePip: true
+    useDownloadCache: false
   domainName-prod: "mayurer.com"
   domainName-stg: "stg.mayurer.com"
   customDomain:
