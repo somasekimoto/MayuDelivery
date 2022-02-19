@@ -141,12 +141,13 @@ def search_news():
     q = f"#松岡茉優 OR 松岡茉優 filter:news exclude:retweets since:{half_day}"
 
     news_tweets = tweepy.Cursor(
-        api.search,
+        api.search_tweets,
         q=q,
         tweet_mode='extended',
         include_entities=True,
         result_type='mixed',
-    ).items(30)
+        count=30
+    ).items()
 
     contents = create_contents(news_tweets)
     if not contents:

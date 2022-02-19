@@ -29,7 +29,7 @@ def search_tweets():
     q = f"#松岡茉優 OR 松岡茉優 -'松岡茉優似' filter:media exclude:retweets min_faves:10 since:{yesterday} min_retweets:0"
 
     tweets = tweepy.Cursor(
-        api.search,
+        api.search_tweets,
         q=q,
         tweet_mode='extended',
         result_type="mixed",
