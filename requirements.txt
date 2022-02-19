@@ -4,3 +4,4 @@ print_function
 tweepy
 bs4
 lxml
+html5lib

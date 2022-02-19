@@ -6,26 +6,33 @@ import json
 import requests
 from bs4 import BeautifulSoup
 import lxml
-
 from linebot.models import (
-    BubbleContainer, BoxComponent, TextComponent, SeparatorComponent, SpacerComponent,
-    FlexSendMessage, ImageComponent, URIAction, IconComponent, CarouselContainer, ButtonComponent
+    FlexSendMessage, BubbleContainer, BoxComponent, TextComponent, SeparatorComponent, URIAction
 )
+import html5lib
+
 
 consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
 consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
 access_token = os.getenv('TWITTER_ACCESS_TOKEN')
 access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 bearer_token = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
+# consumer_key = "niHzsC38RHoIcyBrKjsvyURYo"
+# consumer_secret = "gZJImwTSSEMCu415aiHESN0nLYacUHBHH99ONVHTknbJnnlAOc"
+# access_token = "744842207056658432-7buVoTGH80jkl8GkDeaoVm8UaGcL3NL"
+# access_token_secret = "BPMvt9tyYFAkm2wWCVdS4eOa86ttk7BBxDKqRVVgWwFir"
 
 
 def create_contents(news_tweets):
     contents = []
     for tweet in news_tweets:
         response = requests.get(tweet.entities['urls'][0]['expanded_url'])
-        soup = BeautifulSoup(response.text, 'lxml')
-        print(soup.title.string)
-        news_title = soup.title.string
+        # soup = BeautifulSoup(response.text, "lxml")
+        soup = BeautifulSoup(response.text, "html5lib")
+        if soup.title is None:
+            news_title = "タイトルが取得できませんでした"
+        else:
+            news_title = soup.title.string
         news_url = tweet.entities['urls'][0]['expanded_url']
         contents.append(
             {
