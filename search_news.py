@@ -17,10 +17,6 @@ consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
 access_token = os.getenv('TWITTER_ACCESS_TOKEN')
 access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 bearer_token = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
-# consumer_key = "niHzsC38RHoIcyBrKjsvyURYo"
-# consumer_secret = "gZJImwTSSEMCu415aiHESN0nLYacUHBHH99ONVHTknbJnnlAOc"
-# access_token = "744842207056658432-7buVoTGH80jkl8GkDeaoVm8UaGcL3NL"
-# access_token_secret = "BPMvt9tyYFAkm2wWCVdS4eOa86ttk7BBxDKqRVVgWwFir"
 
 
 def create_contents(news_tweets):
