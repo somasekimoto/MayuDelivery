@@ -43,7 +43,7 @@ custom:
 functions:
   search_tweets:
     handler: media_deliver.send_media
-    timeout: 900
+    timeout: 30
     events:
       - http:
           path: linebot/send_media
@@ -53,7 +53,7 @@ functions:
           enabled: ${self:custom.scheduleEnabled.${self:provider.stage}}
   check_official:
     handler: media_deliver.send_media
-    timeout: 300
+    timeout: 30
     events:
       - http:
           path: linebot/send_media
@@ -63,7 +63,7 @@ functions:
           enabled: ${self:custom.scheduleEnabled.${self:provider.stage}}
   search_news:
     handler: media_deliver.send_media
-    timeout: 300
+    timeout: 30
     events:
       - http:
           path: linebot/send_media
