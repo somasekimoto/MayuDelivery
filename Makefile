@@ -1,6 +1,5 @@
 stg:
-	sls deploy -s stg -v
+	sls deploy -s stg --verbose
 prod:
-	sls deploy -s prod -v
-
+	sls deploy -s prod --verbose
 
