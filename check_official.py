@@ -7,18 +7,22 @@ from linebot.models import (
     BubbleContainer, BoxComponent, TextComponent,
     FlexSendMessage, ImageComponent, URIAction, IconComponent, CarouselContainer, ButtonComponent
 )
+import pytz
 
 consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
 consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
 access_token = os.getenv('TWITTER_ACCESS_TOKEN')
 access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 bearer_token = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
+jptz = pytz.timezone('Asia/Tokyo')
 
 
 def create_contents(tweets):
     contents = []
+    hour_ago = jptz.localize(datetime.now() - timedelta(hours=1, minutes=1))
     for t in tweets:
-        if t.created_at >= datetime.utcnow() - timedelta(hours=1, minutes=1):
+        created_at = t.created_at + timedelta(hours=9)
+        if created_at > hour_ago:
             print(t.full_text)
             print(t.created_at)
             profile_image = t.user.profile_image_url_https
