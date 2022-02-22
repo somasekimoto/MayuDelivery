@@ -2,6 +2,7 @@ import os
 import tweepy
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
+from dateutil import tz
 import re
 from linebot.models import (
     BubbleContainer, BoxComponent, TextComponent,
@@ -20,11 +21,12 @@ jptz = pytz.timezone('Asia/Tokyo')
 def create_contents(tweets):
     contents = []
     hour_ago = jptz.localize(datetime.now() - timedelta(hours=1, minutes=1))
+    JST = tz.gettz('Asia/Tokyo')
     for t in tweets:
-        created_at = t.created_at + timedelta(hours=9)
+        created_at = t.created_at.astimezone(JST)
         if created_at > hour_ago:
             print(t.full_text)
-            print(t.created_at)
+            print(created_at)
             profile_image = t.user.profile_image_url_https
             text = t.full_text
             is_retweeted = re.match('^RT', text)
@@ -151,8 +153,7 @@ def check_official():
     api = tweepy.API(auth)
 
     tweets = api.user_timeline(
-        screen_name='hiratahirata14', count=10, exclude_replies=True,
-        tweet_mode="extended", include_entities=True
+        screen_name='hiratahirata14', count=10, exclude_replies=True, tweet_mode="extended",
     )
 
     contents = create_contents(tweets)
