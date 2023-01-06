@@ -6,7 +6,6 @@ provider:
   region: ap-northeast-1
   stage: ${opt:stage, 'stg'}
   deploymentBucket: sls-deps
-  lambdaHashingVersion: 20201221
   environment: ${file(./env/${self:provider.stage}.yml)}
   iamRoleStatements:
     - Effect: "Allow"

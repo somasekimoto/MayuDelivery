@@ -1,6 +1,7 @@
 # Distribution / packaging
 .Python
-env/
+env/*
+!example.yml
 build/
 develop-eggs/
 dist/
